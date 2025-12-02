@@ -1,27 +1,591 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>My Gemini Content</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Engineer Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        body {
-            font-family: Arial;
-            background: #f0f0f0;
-            padding: 20px;
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@300;400;600;700&display=swap');
+
+        :root {
+            --neon-cyan: #0aff00; /* Changed to neon green */
+            --neon-green: #0aff00;
+            --dark-bg: #050a14;
         }
-        .box {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 0 10px #ccc;
+
+        body {
+            background-color: var(--dark-bg);
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .mono-font {
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        /* Glitch Effect for Header */
+        .glitch {
+            position: relative;
+        }
+        
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .glitch::before {
+            left: 2px;
+            text-shadow: -1px 0 #ff00c1;
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim 5s infinite linear alternate-reverse;
+        }
+
+        .glitch::after {
+            left: -2px;
+            text-shadow: -1px 0 #0aff00; /* Changed to neon green */
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim2 5s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim {
+            0% { clip: rect(33px, 9999px, 11px, 0); }
+            20% { clip: rect(89px, 9999px, 13px, 0); }
+            40% { clip: rect(12px, 9999px, 68px, 0); }
+            60% { clip: rect(34px, 9999px, 2px, 0); }
+            80% { clip: rect(56px, 9999px, 44px, 0); }
+            100% { clip: rect(12px, 9999px, 98px, 0); }
+        }
+
+        @keyframes glitch-anim2 {
+            0% { clip: rect(2px, 9999px, 88px, 0); }
+            20% { clip: rect(34px, 9999px, 11px, 0); }
+            40% { clip: rect(66px, 9999px, 33px, 0); }
+            60% { clip: rect(12px, 9999px, 77px, 0); }
+            80% { clip: rect(45px, 9999px, 99px, 0); }
+            100% { clip: rect(87px, 9999px, 2px, 0); }
+        }
+
+        /* Card Styles */
+        .glass-card {
+            background: rgba(13, 20, 36, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(10, 255, 0, 0.1); /* Changed to green rgba */
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 20px rgba(10, 255, 0, 0.1); /* Changed to green rgba */
+            transform: translateY(-5px);
+        }
+
+        /* Terminal Window Style */
+        .terminal-window {
+            background: #0d1117;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid #30363d;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .terminal-header {
+            background: #161b22;
+            padding: 8px 16px;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #30363d;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .cursor-blink {
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #050a14;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--neon-cyan);
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.4;
+        }
+        
+        .nav-link {
+            position: relative;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0%;
+            height: 2px;
+            background-color: var(--neon-cyan);
+            transition: width 0.3s;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
         }
     </style>
 </head>
-<body>
-    <div class="box">
-        <h1>Gemini Content</h1>
-        <p>
-           https://gemini.google.com/share/8fd25eb65b46
-        </p>
-    </div>
+<body class="antialiased selection:bg-green-500 selection:text-black"> <!-- Changed selection color -->
+
+    <!-- Canvas Background for Network Animation -->
+    <div id="canvas-container"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 glass-card border-b-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <!-- Logo removed as requested -->
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="#home" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white transition-colors">Home</a>
+                        <a href="#about" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white transition-colors">About</a>
+                        <a href="#experience" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white transition-colors">Experience</a>
+                        <a href="#skills" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white transition-colors">Skills</a>
+                        <a href="#contact" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-green-400 hover:text-green-300 transition-colors border border-green-500/50 rounded hover:bg-green-500/10">Contact</a> <!-- Changed all cyan references to green -->
+                    </div>
+                </div>
+                <!-- Mobile menu button -->
+                <div class="-mr-2 flex md:hidden">
+                    <button type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none" aria-controls="mobile-menu" aria-expanded="false" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+                        <i data-lucide="menu" class="h-6 w-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div class="hidden md:hidden bg-gray-900 border-b border-gray-800" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#home" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Home</a>
+                <a href="#about" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-800">About</a>
+                <a href="#experience" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-800">Experience</a>
+                <a href="#skills" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-800">Skills</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="pt-32 pb-20 px-4 min-h-screen flex items-center">
+        <div class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            
+            <!-- Text Content -->
+            <div class="space-y-6 animate-fade-in-up">
+                <div class="inline-flex items-center px-3 py-1 rounded-full border border-green-500/30 bg-green-500/10 text-green-400 text-sm mono-font mb-2"> <!-- Changed cyan references to green -->
+                    <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse mr-2"></span> <!-- Changed bg-cyan-400 to bg-green-400 -->
+                    System Online
+                </div>
+                
+                <h1 class="text-5xl md:text-7xl font-bold text-white tracking-tight">
+                    AMAL <span class="text-green-400">V A</span> <!-- Changed text-cyan-400 to text-green-400 -->
+                </h1>
+                
+                <h2 class="text-2xl md:text-3xl text-gray-400 font-light glitch" data-text="Network Engineer">
+                    Network Engineer
+                </h2>
+                
+                <p class="text-gray-400 text-lg max-w-2xl leading-relaxed">
+                    Architecting robust infrastructures and securing connectivity for the digital age. As a dedicated Hardware Network Engineer, I blend physical precision with logical expertise to build the invisible bridges that keep the world connected.
+                </p>
+
+                <div class="py-4">
+                    <h3 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-600 uppercase tracking-widest mono-font">
+                        CISCO CERTIFIED NETWORKING ASSOCIATE
+                    </h3>
+                </div>
+
+                <div class="flex flex-wrap gap-4">
+                    <!-- Changed LinkedIn Button to "Type B" (Outlined Neon Style) -->
+                    <a href="https://www.linkedin.com/in/amalva/" target="_blank" class="group flex items-center px-6 py-3 bg-transparent border-2 border-green-500 text-green-400 hover:bg-green-500 hover:text-black font-bold rounded-lg transition-all shadow-[0_0_10px_rgba(10,255,0,0.2)] hover:shadow-[0_0_20px_rgba(10,255,0,0.6)]">
+                        <!-- Thicker stroke for 'bold' look -->
+                        <i data-lucide="linkedin" class="w-5 h-5 mr-2 stroke-[2.5] group-hover:scale-110 transition-transform"></i>
+                        Connect on LinkedIn
+                    </a>
+                    
+                    <!-- Changed Get in Touch to direct Mailto link -->
+                    <a href="mailto:amalvashokan99@gmail.com" class="flex items-center px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white font-medium rounded-lg transition-all border border-gray-600 hover:border-gray-500">
+                        <i data-lucide="mail" class="w-5 h-5 mr-2"></i>
+                        Get in Touch
+                    </a>
+                </div>
+            </div>
+
+            <!-- Terminal Graphic -->
+            <div class="hidden lg:block">
+                <div class="terminal-window">
+                    <div class="terminal-header">
+                        <div class="dot bg-red-500"></div>
+                        <div class="dot bg-yellow-500"></div>
+                        <div class="dot bg-green-500"></div>
+                        <div class="ml-4 text-xs text-gray-400 mono-font">root@amal-server:~</div>
+                    </div>
+                    <div class="p-6 text-sm text-green-400 mono-font h-80 overflow-y-auto" id="terminal-content">
+                        <p class="mb-2"><span class="text-blue-400">➜</span> <span class="text-purple-400">~</span> whoami</p>
+                        <p class="mb-4 text-gray-300">Amal V A, Network Engineer</p>
+                        
+                        <p class="mb-2"><span class="text-blue-400">➜</span> <span class="text-purple-400">~</span> cat current_status.txt</p>
+                        <p class="mb-4 text-gray-300">Currently optimizing network infrastructure at iGate Networks.</p>
+                        
+                        <p class="mb-2"><span class="text-blue-400">➜</span> <span class="text-purple-400">~</span> list_skills.sh</p>
+                        <div class="grid grid-cols-2 gap-2 text-gray-300 mb-4">
+                            <span>[✔] Hardware Installation</span>
+                            <span>[✔] Structured Cabling</span>
+                            <span>[✔] Router Configuration</span>
+                            <span>[✔] Switch Management</span>
+                            <span>[✔] Physical Troubleshooting</span>
+                            <span>[✔] Network Maintenance</span>
+                        </div>
+
+                        <p class="mb-2"><span class="text-blue-400">➜</span> <span class="text-purple-400">~</span> verify_status</p>
+                        <p class="text-gray-300">Checking certifications...</p>
+                        <p class="text-green-400 font-bold mt-2">>> VERIFIED: CCNA CISCO CERTIFIED<span class="cursor-blink">_</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About / Preamble Section -->
+    <section id="about" class="py-20 px-4 bg-gray-900/50">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-8 flex items-center justify-center">
+                <span class="w-12 h-1 bg-green-500 mr-4"></span>
+                Mission Statement
+                <span class="w-12 h-1 bg-green-500 ml-4"></span>
+            </h2>
+            <p class="text-gray-300 text-lg leading-loose mb-6">
+                In an era where connectivity is the lifeline of business, I stand as a guardian of the physical layer. My approach to Network Engineering goes beyond command lines; it starts at the rack. I believe that a reliable network is built on the foundation of meticulous hardware assembly, organized structured cabling, and proactive maintenance.
+            </p>
+            <p class="text-gray-300 text-lg leading-loose">
+                At iGate Networks, I have honed the ability to translate complex connectivity requirements into tangible, high-performance infrastructure. Whether it's diagnosing a thermal issue in a core router or deploying a new branch network, I bring a hands-on, detail-oriented methodology that ensures scalability and resilience.
+            </p>
+        </div>
+    </section>
+
+    <!-- Experience Section -->
+    <section id="experience" class="py-20 px-4 relative">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-12 flex items-center">
+                <span class="w-12 h-1 bg-green-500 mr-4"></span> <!-- Changed bg-cyan-500 to bg-green-500 -->
+                Professional Experience
+            </h2>
+
+            <div class="relative border-l border-gray-700 ml-4 md:ml-6 space-y-12">
+                <!-- Timeline Item -->
+                <div class="mb-10 ml-8 relative group">
+                    <span class="absolute -left-11 top-1 w-6 h-6 bg-gray-900 border-2 border-green-500 rounded-full group-hover:bg-green-500 transition-colors duration-300 shadow-[0_0_10px_rgba(10,255,0,0.5)]"></span> <!-- Changed cyan references and shadow rgba to green -->
+                    
+                    <div class="glass-card p-6 md:p-8 rounded-xl relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4 opacity-10">
+                            <i data-lucide="server" class="w-24 h-24 text-green-400"></i> <!-- Changed text-cyan-400 to text-green-400 -->
+                        </div>
+                        
+                        <div class="flex flex-col md:flex-row md:items-center justify-between mb-4">
+                            <div>
+                                <h3 class="text-xl md:text-2xl font-bold text-white group-hover:text-green-400 transition-colors">Hardware Network Engineer</h3>
+                                <h4 class="text-lg text-green-500 font-medium">iGate Networks</h4>
+                            </div>
+                            <span class="text-sm mono-font text-gray-400 mt-2 md:mt-0 px-3 py-1 bg-gray-800 rounded border border-gray-700">Present</span>
+                        </div>
+                        
+                        <p class="text-gray-300 mb-6 leading-relaxed">
+                            Specialized in the physical implementation and maintenance of robust network infrastructures. Expert in hardware deployment, structured cabling, and physical layer troubleshooting to ensure seamless connectivity.
+                        </p>
+                        
+                        <ul class="space-y-3 mb-6">
+                            <li class="flex items-start">
+                                <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mr-3 mt-1 flex-shrink-0"></i>
+                                <span class="text-gray-400">Executed physical installation and configuration of network hardware including Routers, Switches, and Firewalls in data center racks.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mr-3 mt-1 flex-shrink-0"></i>
+                                <span class="text-gray-400">Led comprehensive Hardware Assembly operations: rack mounting, chassis population, power supply redundancy setup, and transceiver module installation.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mr-3 mt-1 flex-shrink-0"></i>
+                                <span class="text-gray-400">Performed rigorous Hardware Maintenance protocols including thermal analysis, fan tray replacements, and physical component diagnostics to prevent failure.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mr-3 mt-1 flex-shrink-0"></i>
+                                <span class="text-gray-400">Managed structured cabling (Cat6, Fiber Optic) installation, termination, and testing, ensuring strict adherence to industry standards.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mr-3 mt-1 flex-shrink-0"></i>
+                                <span class="text-gray-400">Collaborated with remote teams for equipment provisioning and resolved physical layer connectivity issues to maintain network uptime.</span>
+                            </li>
+                        </ul>
+
+                        <div class="border-t border-gray-700 pt-4">
+                            <h5 class="text-sm font-bold text-green-500 mb-3 uppercase tracking-wider flex items-center">
+                                <i data-lucide="cpu" class="w-4 h-4 mr-2"></i>
+                                Key Technical Proficiencies
+                            </h5>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-green-500/10 text-green-300 text-xs rounded border border-green-500/30 hover:bg-green-500/20 transition-colors cursor-default">System Maintenance</span>
+                                <span class="px-3 py-1 bg-green-500/10 text-green-300 text-xs rounded border border-green-500/30 hover:bg-green-500/20 transition-colors cursor-default">Hardware Assembly</span>
+                                <span class="px-3 py-1 bg-green-500/10 text-green-300 text-xs rounded border border-green-500/30 hover:bg-green-500/20 transition-colors cursor-default">Network Troubleshooting</span>
+                                <span class="px-3 py-1 bg-green-500/10 text-green-300 text-xs rounded border border-green-500/30 hover:bg-green-500/20 transition-colors cursor-default">Structured Cabling</span>
+                                <span class="px-3 py-1 bg-green-500/10 text-green-300 text-xs rounded border border-green-500/30 hover:bg-green-500/20 transition-colors cursor-default">Rack & Stack</span>
+                                <span class="px-3 py-1 bg-green-500/10 text-green-300 text-xs rounded border border-green-500/30 hover:bg-green-500/20 transition-colors cursor-default">Firmware Upgrades</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="py-20 px-4 bg-gray-900/30">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-4 text-center">Technical Arsenal</h2>
+            <p class="text-gray-400 text-center mb-16 max-w-2xl mx-auto">A comprehensive set of networking tools and technologies I utilize to build secure and scalable infrastructures.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                <!-- Skill Category 1 -->
+                <div class="glass-card p-6 rounded-xl hover:bg-gray-800/50 transition-colors">
+                    <div class="flex items-center mb-6">
+                        <div class="p-3 bg-blue-500/10 rounded-lg mr-4">
+                            <i data-lucide="router" class="w-6 h-6 text-blue-400"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white">Network Infrastructure</h3>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-3 py-1 bg-gray-800 text-sm text-blue-200 rounded-full border border-blue-500/30">Cisco IOS</span>
+                        <span class="px-3 py-1 bg-gray-800 text-sm text-blue-200 rounded-full border border-blue-500/30">Juniper Junos</span>
+                        <span class="px-3 py-1 bg-gray-800 text-sm text-blue-200 rounded-full border border-blue-500/30">Routing (OSPF, BGP)</span>
+                        <span class="px-3 py-1 bg-gray-800 text-sm text-blue-200 rounded-full border border-blue-500/30">Switching (VLAN, STP)</span>
+                        <span class="px-3 py-1 bg-gray-800 text-sm text-blue-200 rounded-full border border-blue-500/30">SD-WAN</span>
+                    </div>
+                </div>
+
+                <!-- Skill Category 3 (Now 2) -->
+                <div class="glass-card p-6 rounded-xl hover:bg-gray-800/50 transition-colors">
+                    <div class="flex items-center mb-6">
+                        <div class="p-3 bg-purple-500/10 rounded-lg mr-4">
+                            <i data-lucide="wifi" class="w-6 h-6 text-purple-400"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white">Wireless & Monitoring</h3>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-3 py-1 bg-gray-800 text-sm text-purple-200 rounded-full border border-purple-500/30">Wireshark</span>
+                        <span class="px-3 py-1 bg-gray-800 text-sm text-purple-200 rounded-full border border-purple-500/30">SolarWinds</span>
+                        <span class="px-3 py-1 bg-gray-800 text-sm text-purple-200 rounded-full border border-purple-500/30">Nagios</span>
+                        <span class="px-3 py-1 bg-gray-800 text-sm text-purple-200 rounded-full border border-purple-500/30">Cisco WLC</span>
+                        <span class="px-3 py-1 bg-gray-800 text-sm text-purple-200 rounded-full border border-purple-500/30">Site Surveys</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer / Contact -->
+    <footer id="contact" class="bg-black py-12 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col items-center justify-center text-center">
+            
+            <div class="mb-8">
+                <i data-lucide="network" class="h-10 w-10 text-green-500 mx-auto mb-4"></i> <!-- Changed text-cyan-500 to text-green-500 -->
+                <h2 class="text-2xl font-bold text-white mb-2">Ready to Connect?</h2>
+                <p class="text-gray-400 mb-4">Let's build the future network together.</p>
+                <a href="mailto:amalvashokan99@gmail.com" class="text-lg md:text-xl font-medium text-green-400 hover:text-green-300 transition-colors mono-font border-b border-green-500/30 hover:border-green-400 pb-1">amalvashokan99@gmail.com</a>
+            </div>
+
+            <div class="flex space-x-6 mb-8">
+                <a href="https://www.linkedin.com/in/amalva/" target="_blank" class="transform hover:scale-110 transition-transform p-3 bg-gray-800 rounded-full text-white hover:bg-[#0077b5] hover:text-white">
+                    <i data-lucide="linkedin" class="w-6 h-6"></i>
+                </a>
+                <a href="mailto:amalvashokan99@gmail.com" class="transform hover:scale-110 transition-transform p-3 bg-gray-800 rounded-full text-white hover:bg-red-600 hover:text-white">
+                    <i data-lucide="mail" class="w-6 h-6"></i>
+                </a>
+                <a href="#" class="transform hover:scale-110 transition-transform p-3 bg-gray-800 rounded-full text-white hover:bg-gray-600 hover:text-white">
+                    <i data-lucide="github" class="w-6 h-6"></i>
+                </a>
+            </div>
+
+            <p class="text-sm text-gray-600 mono-font">
+                © <script>document.write(new Date().getFullYear())</script> Amal V A. All rights reserved.
+                <br>
+                <span class="text-green-900/50">System Status: Optimal</span> <!-- Changed text-cyan-900/50 to text-green-900/50 -->
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        window.addEventListener('load', function() {
+            // Initialize Lucide Icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            } else {
+                console.error('Lucide library could not be loaded.');
+            }
+
+            // Canvas Network Animation
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const container = document.getElementById('canvas-container');
+
+            // Clear existing canvas to prevent duplicates
+            container.innerHTML = '';
+            container.appendChild(canvas);
+
+            let w, h;
+            let particles = [];
+            const properties = {
+                bgColor: 'rgba(5, 10, 20, 1)',
+                particleColor: 'rgba(10, 255, 0, 0.5)', // Changed to neon green rgba
+                particleRadius: 3,
+                particleCount: 60,
+                lineLength: 150,
+                particleSpeed: 0.5
+            };
+
+            function resize() {
+                w = canvas.width = window.innerWidth;
+                h = canvas.height = window.innerHeight;
+            }
+
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * w;
+                    this.y = Math.random() * h;
+                    this.vx = (Math.random() * (properties.particleSpeed * 2)) - properties.particleSpeed;
+                    this.vy = (Math.random() * (properties.particleSpeed * 2)) - properties.particleSpeed;
+                }
+
+                position() {
+                    this.x += this.vx;
+                    this.y += this.vy;
+
+                    if (this.x > w) this.x = 0;
+                    else if (this.x < 0) this.x = w;
+                    if (this.y > h) this.y = 0;
+                    else if (this.y < 0) this.y = h;
+                }
+
+                reDraw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, properties.particleRadius, 0, Math.PI * 2);
+                    ctx.closePath();
+                    ctx.fillStyle = properties.particleColor;
+                    ctx.fill();
+                }
+            }
+
+            function initParticles() {
+                particles = [];
+                for (let i = 0; i < properties.particleCount; i++) {
+                    particles.push(new Particle());
+                }
+            }
+
+            function drawLines() {
+                let x1, y1, x2, y2, length, opacity;
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = 0; j < particles.length; j++) {
+                        x1 = particles[i].x;
+                        y1 = particles[i].y;
+                        x2 = particles[j].x;
+                        y2 = particles[j].y;
+                        length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+
+                        if (length < properties.lineLength) {
+                            opacity = 1 - length / properties.lineLength;
+                            ctx.lineWidth = '0.5';
+                            ctx.strokeStyle = `rgba(10, 255, 0, ${opacity})`; // Changed to neon green rgba
+                            ctx.beginPath();
+                            ctx.moveTo(x1, y1);
+                            ctx.lineTo(x2, y2);
+                            ctx.closePath();
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+
+            function loop() {
+                // Clear but keep a trail? No, clean wipe for crisp lines
+                ctx.clearRect(0, 0, w, h);
+                
+                for (let i = 0; i < particles.length; i++) {
+                    particles[i].position();
+                    particles[i].reDraw();
+                }
+                drawLines();
+                requestAnimationFrame(loop);
+            }
+
+            // Adjust particle count based on screen size
+            function checkScreenSize() {
+                if (window.innerWidth < 768) {
+                    properties.particleCount = 30;
+                } else {
+                    properties.particleCount = 60;
+                }
+                initParticles();
+            }
+
+            window.addEventListener('resize', () => {
+                resize();
+                checkScreenSize();
+            });
+
+            // Init
+            resize();
+            checkScreenSize();
+            loop();
+
+            // Smooth Scroll
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
 </body>
 </html>
